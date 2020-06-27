@@ -6,7 +6,7 @@ Pending work
 4)	AI planning (25hrs)
 5)	Simulating different restaurants via user input (keyboard) (3hrs)
 6)	Logic to determine the safeness level. (8hrs)
-7)	Exploring things board for visualization. (25hrs)
+7)	Build app for visualization.
 8)	Report (30hrs) 
 9)	Demo setup (8hrs)
 
