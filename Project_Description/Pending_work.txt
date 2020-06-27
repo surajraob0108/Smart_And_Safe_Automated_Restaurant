@@ -9,5 +9,6 @@ Pending work
 7)	Build app for visualization.
 8)	Report (30hrs) 
 9)	Demo setup (8hrs)
+10) Actuation
 
 40hrs/person
