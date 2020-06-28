@@ -1,8 +1,6 @@
 #!/usr/bin/python
-
 import ssl
 import time
-import json
 import paho.mqtt.client as mqtt
 import base64
 
@@ -21,9 +19,11 @@ userdata="smartcityiot"
 awshost = "a1nky7phv7yfno-ats.iot.eu-central-1.amazonaws.com"  
 awsport = 8883
 
-caPath = "/home/pi/Downloads/AmazonRootCA1.pem"
-certPath = "/home/pi/Downloads/0b5fd75186-certificate.pem.crt"
-keyPath = "/home/pi/Downloads/0b5fd75186-private.pem.key"
+awshost = "a1nky7phv7yfno-ats.iot.eu-central-1.amazonaws.com"   
+awsport = 8883
+caPath = "/home/pi/Public/Team_16_Project/Certificates/AmazonRootCA1.pem"
+certPath = "/home/pi/Public/Team_16_Project/Certificates/0b5fd75186-certificate.pem.crt"
+keyPath = "/home/pi/Public/Team_16_Project/Certificates/0b5fd75186-private.pem.key"
 
 receiver = mqtt.Client(userdata)
 receiver.on_connect = on_connect 

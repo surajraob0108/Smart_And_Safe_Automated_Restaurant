@@ -3,7 +3,6 @@ import RPi.GPIO as GPIO
 import time
 import threading
 from mfrc522 import SimpleMFRC522
-from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import csv
 import Python_DHT
 
