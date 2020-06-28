@@ -11,5 +11,6 @@ Pending work
 9)	Demo setup (8hrs)
 10) Actuation output
 11) Integration input
+12) Direct input for user goals - on the subscriber side (Step 1 - input via keyboard)
 
 40hrs/person
