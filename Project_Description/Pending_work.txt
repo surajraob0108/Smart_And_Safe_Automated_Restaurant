@@ -12,5 +12,7 @@ Pending work
 10) Actuation output
 11) Integration input
 12) Direct input for user goals - on the subscriber side (Step 1 - input via keyboard)
+13) Google Firebased Database
+14) Mails - HTTP communication , Visualization (Mobile app , Website)
 
 40hrs/person
