@@ -13,7 +13,7 @@ Pending work
 10)	Build app for visualization (8 hrs)
 11)	Report (30hrs) 
 12)	Demo setup (8hrs)
-13) Actuation output (8 hrs)
+13) Actuation output - Done
 14) Integration input (3 hrs)
 
 
