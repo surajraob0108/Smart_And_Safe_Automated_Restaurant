@@ -2,17 +2,19 @@ Pending work
 
 1)	Ip camera to raspberry pi interface (3hrs) - Done
 2)	Sending image via mqtt (3hrs) - Done
-3)	Communication between raspberry pi and medical database? (4hrs)
-4)	AI planning (25hrs)
-5)	Simulating different restaurants via user input (keyboard) (3hrs)
-6)	Logic to determine the safeness level. (8hrs)
-7)	Build app for visualization.
-8)	Report (30hrs) 
-9)	Demo setup (8hrs)
-10) Actuation output
-11) Integration input
-12) Direct input for user goals - on the subscriber side (Step 1 - input via keyboard)
-13) Google Firebased Database
-14) Mails - HTTP communication , Visualization (Mobile app , Website) 
+3)	Communication between raspberry pi and medical database? (4hrs) - Done
+4)	Simulating different restaurants via user input (keyboard) (3hrs) - Done
+5) Direct input for user goals - on the subscriber side (Step 1 - input via keyboard) - Done
+6) Google Firebased Database - Done
+7) Mails - HTTP communication , Visualization (Mobile app , Website)  - Done
+
+8)	AI planning (25hrs)
+9)	Logic to determine the safeness level. (8hrs)
+10)	Build app for visualization (8 hrs)
+11)	Report (30hrs) 
+12)	Demo setup (8hrs)
+13) Actuation output (8 hrs)
+14) Integration input (3 hrs)
+
 
 40hrs/person
