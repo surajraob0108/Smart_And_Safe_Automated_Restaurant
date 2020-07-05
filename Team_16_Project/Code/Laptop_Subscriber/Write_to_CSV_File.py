@@ -3,7 +3,7 @@ import csv
 # the a is for append, if w for write is used then it overwrites the file
 def write_to_csv():
 
-    with open("/home/pi/Public/Team16_Project/Sensors_Interface/Programs/Hospital_DataBase.csv","w") as log:
+    with open("/home/surajraob0108/Suraj/Python_Programs/Project_Smart_City_IOT/Programs/Subscriber/Hospital_DataBase.csv","w") as log:
         patient_details_write = csv.writer(log, delimiter=",")
         patient_details_write.writerow(["Insurance number" , "Name" , "   Place"])
         patient_details_write.writerow(["717839425354","Mary Julia","Stuttgart"])
@@ -14,7 +14,7 @@ def write_to_csv():
 
 def append_to_csv():
 
-    with open("/home/pi/Public/Team16_Project/Sensors_Interface/Programs/Hospital_DataBase.csv","a") as log:
+    with open("/home/surajraob0108/Suraj/Python_Programs/Project_Smart_City_IOT/Programs/Subscriber/Hospital_DataBase.csv","a") as log:
         patient_details_write = csv.writer(log, delimiter=",") #quotechar="”", quoting=csv.QUOTE_MINIMAL)
         patient_details_write.writerow(["520994865728","Parmesh Kulkarni","HeidelBerg"])
 
