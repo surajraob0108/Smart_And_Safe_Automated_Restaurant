@@ -1,0 +1,2 @@
+(rejecttemp mask id temperature customer manager maindoor)
+(alert manager customer)

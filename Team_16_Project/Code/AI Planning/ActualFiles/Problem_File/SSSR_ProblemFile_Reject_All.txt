@@ -1,0 +1,22 @@
+(define 
+
+(problem SSSR_Reject_COVIDPatient)
+
+(:domain SSSR)
+
+(:objects   Mask - mask 
+            ID -RFID 
+            Temperature - temp
+            MainDoor - door
+            Customer Manager - person
+)
+
+(:init      (IsCustomer Customer)
+            (IsDoor MainDoor)
+            (IsManager Manager)
+)
+
+(:goal      (and (JudgeCustomer Customer) (not (IsDoorOpen MainDoor)) (not (ManagerAlert Manager))  )
+)
+
+)

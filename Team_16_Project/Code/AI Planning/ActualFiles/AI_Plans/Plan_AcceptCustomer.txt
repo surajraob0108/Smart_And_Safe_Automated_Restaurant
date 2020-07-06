@@ -1,0 +1,2 @@
+(allow mask id temperature customer maindoor)
+(closedoor maindoor customer)

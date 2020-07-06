@@ -1,0 +1,24 @@
+(define 
+
+(problem SSSR_Rejected_UnderQuarantine)
+
+(:domain SSSR)
+
+(:objects   Mask - mask 
+            ID - RFID
+            Temperature - temp
+            MainDoor - door
+            Customer Manager - person
+)
+
+(:init      (IsCustomer Customer)
+            (IsManager Manager)
+            (IsDoor MainDoor)
+            (MaskOkay Mask)
+            (TempOkay Temperature)
+)
+
+(:goal      (and (JudgeCustomer Customer) (not (IsDoorOpen MainDoor)) (not (ManagerAlert Manager))  )
+)
+
+)
