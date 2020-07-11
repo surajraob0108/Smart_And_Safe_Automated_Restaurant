@@ -9,13 +9,14 @@ Pending work
 7) Mails - HTTP communication , Visualization (Mobile app , Website)  - Done
 
 8)	AI planning (25hrs) - Done
-9)	Logic to determine the safeness level. (8hrs)
+9)	Logic to determine the safeness level. Done
 10)	Build app for visualization (8 hrs)
 11)	Report (30hrs) 
 12)	Demo setup (8hrs)
 13) Actuation output - Done
 14) Integration input (3 hrs) Done
 15) BitBucket Folder Organise
+16) Creating one more database for sensor health
 
 
 40hrs/person
