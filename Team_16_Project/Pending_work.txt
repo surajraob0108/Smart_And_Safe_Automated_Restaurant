@@ -8,13 +8,14 @@ Pending work
 6) Google Firebased Database - Done
 7) Mails - HTTP communication , Visualization (Mobile app , Website)  - Done
 
-8)	AI planning (25hrs)
+8)	AI planning (25hrs) - Done
 9)	Logic to determine the safeness level. (8hrs)
 10)	Build app for visualization (8 hrs)
 11)	Report (30hrs) 
 12)	Demo setup (8hrs)
 13) Actuation output - Done
 14) Integration input (3 hrs)
+15) BitBucket Folder Organise
 
 
 40hrs/person
