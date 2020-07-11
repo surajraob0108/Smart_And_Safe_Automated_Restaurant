@@ -14,7 +14,7 @@ Pending work
 11)	Report (30hrs) 
 12)	Demo setup (8hrs)
 13) Actuation output - Done
-14) Integration input (3 hrs)
+14) Integration input (3 hrs) Done
 15) BitBucket Folder Organise
 
 
