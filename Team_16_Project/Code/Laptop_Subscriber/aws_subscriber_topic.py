@@ -9,6 +9,7 @@ import requests
 import sys
 import os
 from firebase import firebase
+from datetime import date
 
 # Function for Image Reconstructio and Mask detection output
 def mask_detection(image_data_str):
@@ -17,20 +18,16 @@ def mask_detection(image_data_str):
     image_result = open("/Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/result.jpg", "wb+") 
     image_result.write(image_64_decode)
     image_result.close()
-    print("Before")
     os.system("python3 detect_mask_image.py --image /Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/result.jpg")
     file_result=open("/Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/mask_output.txt", "r")
     mask_output=file_result.read(1)
-    print(mask_output)
     return mask_output
     
 # Function for Receiving Customer ID Check status from DataBase
 def customer_id_check(database_input):
     if(int(database_input) == 1):
-        print("Health Issues")
         id_check_ai_input = 0
     else:
-        print("No Health Issues")
         id_check_ai_input = 1
 
     file_result_customer_id = open("/Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/AI_Planning/Customer_Status_output.txt","a")
@@ -42,10 +39,8 @@ def customer_id_check(database_input):
 # Function for Customer Temperature Check
 def body_temperature_check(body_temperature):
     if(int(body_temperature) <= int(maximum_body_temperature)):
-        print("Temperature ok")
         body_temperature_output = 1
     else:
-        print("Temperature Not ok")
         body_temperature_output = 0
     return body_temperature_output
 
@@ -128,6 +123,8 @@ def ai_plan_output():
 
 totalCustomerCount = [0, 0, 0 , 0]
 allowedCustomerCount = [0,0,0,0]
+safenessLevelList = ["NoRisk","NoRisk","NoRisk","NoRisk"]
+locationToRestaurantTableMap = [[3,3,3,3],[3,3,3,3],[3,3,3,3],[3,3,3,3],[3,3,3,3]]
 
 # Function for sending customer_check result
 def actuation_data_send(input_ai_plan_data):
@@ -143,54 +140,76 @@ def actuation_data_send(input_ai_plan_data):
     else:
         print("No output from AI Planning")
         customer_data_output = 0
-    print(customer_data_output)
     payload_customer_data = {"Customer_Entry_Result":customer_data_output}
     publisher_data(topic_customer_details,payload_customer_data)
     writeToAppDatabase(file_result[0], file_result[1], totalCustomerCount[int(file_result[0])], allowedCustomerCount[int(file_result[0])])
+    writeAiPlanningToFirebase(file_result[0], file_result[1], input_ai_plan_data)
+
+def writeToFirebase(location, id, safenessLevel):
+    firebase1 = firebase.FirebaseApplication('https://iotfirebase-d312f.firebaseio.com/', None)
+    locationStr = idToLocation[location]
+    locationIdVal = int(location)
+    idVal = int(id)
+    availableSeatsStr = str(locationToRestaurantTableMap[locationIdVal][idVal])
+    data1 = {'RestaurantName': id,
+             'AvailableTables': availableSeatsStr,
+             'SafenessLevel': safenessLevel
+             }
+    firebase1.post("location/" + locationStr + "/" + date.today().strftime('%d-%m-%Y'), data1)
+
+customerCount = [1, 1, 1, 1]
+
+def writeAiPlanningToFirebase(locationId, restaurantId, aiOutput):
+    firebase2 = firebase.FirebaseApplication('https://sssrprojectalldata.firebaseio.com/', None)
+    locationStr = idToLocation[locationId]
+    aiOutputStr = aiOutput[1:]
+    data1 = {'RestaurantName': restaurantId,
+             'CustomerId': str(customerCount[int(locationId)]),
+             'AllowRejectReason': aiOutputStr
+             }
+    firebase2.post("location/" + locationStr + "/" + date.today().strftime('%d-%m-%Y'), data1)
+    customerCount[int(locationId)] = customerCount[int(locationId)] + 1
+
 
 def writeToAppDatabase(location, id, totalCustomerCountVal,  allowedCustomerCountVal):
     print ("Database function started  " + "location : " + location + "id : " + id + "total : "+str(totalCustomerCountVal)
            + "allowed : "+ str(allowedCustomerCountVal))
     safeness_level = allowedCustomerCountVal / totalCustomerCountVal
-    print (safeness_level)
-    locationStr = idToLocation[location]
-    safeness_level_str = "No risk"
-    if (safeness_level < 0.5):
-        safeness_level_str = "High risk"
+    if (safeness_level < 0.2):
+        safenessLevelList[int(location)] = "SevereRisk"
+    elif (safeness_level < 0.5):
+        safenessLevelList[int(location)] = "HighRisk"
+    elif (safeness_level < 0.8):
+        safenessLevelList[int(location)] = "ModerateRisk"
+    else:
+        safenessLevelList[int(location)] = "NoRisk"
 
-    print ("Befroe firebase safenesslevel : " + safeness_level_str)
-    firebase1 = firebase.FirebaseApplication('https://iotfirebase-d312f.firebaseio.com/', None)
-    print ("Firebase updated")
-
-    data1 = {'RestaurantName': id,
-             'AvailableSeats': '3',
-             'SafenessLevel': safeness_level_str
-             }
-
-    firebase1.post("location/" + locationStr + '/11-07-2020', data1)
-    print ("Posted")
-
+    writeToFirebase(location, id, safenessLevelList[int(location)])
 
 # Function for Hand Movement Check of Customer
 def customer_handdetection_check(input_distance):
     if (int(input_distance) <= int(maximum_handdetection_distance)):
-        print("Hand detected: Sanitizer ON")
         buzzer_status = 1
         payload_buzzer_data = {"Buzzer_Status": buzzer_status}
         publisher_data(topic_customer_handdetection, payload_buzzer_data)
-    else:
-        print("Hand not detected: Sanitizer OFF")
-        buzzer_status = 0
 
-def customer_presence_table_check(input_table_number, input_customer):
-    if (int(input_customer) <= int(maximum_distance)):
-        print("Table " + str(input_table_number) + " Not Free..!!")
-        led_state = 0
-    else:
-        print("Table " + str(input_table_number) + " Free..!!")
-        led_state = 1
-    payload_led_state = {"Table_Number_Output": input_table_number, "Disinfectant_Status": led_state}
-    publisher_data(topic_customer_detection, payload_led_state)
+def customer_presence_table_check(location, id, distanceList):
+    locationVal = int(locationToId[location])
+    idVal = int(id)
+    locationToRestaurantTableMap[locationVal][idVal] = 3
+    for i, distance in enumerate(distanceList):
+        if (float(distance) <= float(maximum_distance)):
+            if (locationToRestaurantTableMap[locationVal][idVal] > 0):
+                locationToRestaurantTableMap[locationVal][idVal] = locationToRestaurantTableMap[locationVal][idVal] - 1
+            led_state = 0
+        else:
+            if (locationToRestaurantTableMap[locationVal][idVal] < 3):
+                locationToRestaurantTableMap[locationVal][idVal] = locationToRestaurantTableMap[locationVal][idVal] + 1
+            led_state = 1
+        payload_led_state = {"Table_Number_Output": i + 1, "Disinfectant_Status": led_state}
+        publisher_data(topic_customer_detection, payload_led_state)
+    writeToFirebase(locationToId[location], id, safenessLevelList[locationVal])
+
 
 # Function to start subscriber based on topic
 def subscriber_start(input_topic):
@@ -219,7 +238,9 @@ def on_message(client, userdata, msg):
         customer_id_check(payload_data["DataBase_result"])
     elif (msg.topic == topic_customer_detection):
         payload_data = json.loads(msg.payload)
-        customer_presence_table_check(payload_data["Table_Number"], payload_data["Distance"])
+        tableListDistance = [str(payload_data["Distance_Table1"]), str(payload_data["Distance_Table2"]), str(payload_data["Distance_Table3"])]
+        customer_presence_table_check(payload_data["Location"], payload_data["Restaurant_number"], tableListDistance)
+        
     elif (msg.topic == topic_customer_handdetection):
         payload_data = json.loads(msg.payload)
         customer_handdetection_check(payload_data["Distance"])
