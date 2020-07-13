@@ -142,7 +142,8 @@ def customer_entry_details(input_trig_pin,input_echo_pin,sleeptime,temperature_p
             publisher_data(topic_customer_details,payload_customer_data)
         else:
             waiting_for_customer = 1
-
+            
+# Customer Entry Result printed
 def customer_entry_result(input_customer_entry_data):
     if(int(input_customer_entry_data) == 1):
         print("Customer Allowed")
