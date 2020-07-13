@@ -10,6 +10,7 @@ from PIL import Image
 from resizeimage import resizeimage
 import base64
 import os
+from firebase import firebase
 
 # Camera Input
 def camera_input():
@@ -78,8 +79,6 @@ def distance_calculation(Trigger_IN,ECHO_OUT,sleeptime):
     GPIO.output(Trigger_IN, GPIO.HIGH)
     time.sleep(0.00001)
     GPIO.output(Trigger_IN, GPIO.LOW)
-    #print("Distance sensor Value-ID generation")
-    #print(GPIO.input(ECHO_OUT))
     while GPIO.input(ECHO_OUT)==0:
         pulse_start_time = time.time()
     while GPIO.input(ECHO_OUT)==1:
@@ -88,30 +87,33 @@ def distance_calculation(Trigger_IN,ECHO_OUT,sleeptime):
     distance = round(pulse_duration * 17150, 2)
     return distance
 
-# Function for Customer Movement Detection
-def customer_movement_distance_calculation(PIN_IN,PIN_OUT,sleep_time,table_number):
+# Function for Customer Hand Movement Detection
+def customer_movement_hand_detection(PIN_IN,PIN_OUT,sleep_time):
     while True:
         GPIO.output(PIN_IN, GPIO.LOW)
         time.sleep(sleep_time)
         GPIO.output(PIN_IN, GPIO.HIGH)
         time.sleep(0.00001)
         GPIO.output(PIN_IN, GPIO.LOW)
-        #print("Distance sensor Value-HS,Table")
-        print(GPIO.input(PIN_OUT))
         while GPIO.input(PIN_OUT)==0:
             pulse_start_time = time.time()
         while GPIO.input(PIN_OUT)==1:
             pulse_end_time = time.time()
         pulse_duration = pulse_end_time - pulse_start_time
         distance = round(pulse_duration * 17150, 2)        
-        if(table_number <= 3):
-            payload_table_data = {"Restaurant_number":restaurant_number,"Table_Number":table_number,"Distance":distance}
-            publisher_data(topic_customer_detection,payload_table_data)
-            time.sleep(10)
-        else:
-            payload_handdetection = {"Restaurant_number":restaurant_number,"Distance":distance}
-            publisher_data(topic_customer_handdetection,payload_handdetection)
-            time.sleep(2)
+        payload_handdetection = {"Restaurant_number":restaurant_number,"Distance":distance}
+        publisher_data(topic_customer_handdetection,payload_handdetection)
+        time.sleep(2)
+
+# Customer Detection Table Check
+def customer_presence_table_data(PIN_IN_1,PIN_OUT_1,sleep_time_1,PIN_IN_2,PIN_OUT_2,sleep_time_2,PIN_IN_3,PIN_OUT_3,sleep_time_3):
+    while True:
+        table_1_distance = distance_calculation(PIN_IN_1,PIN_OUT_1,sleep_time_1)
+        table_2_distance = distance_calculation(PIN_IN_2,PIN_OUT_2,sleep_time_2)
+        table_3_distance = distance_calculation(PIN_IN_3,PIN_OUT_3,sleep_time_3)
+        payload_table_data = {"Location":restaurant_location,"Restaurant_number":restaurant_number,"Distance_Table1":table_1_distance,"Distance_Table2":table_2_distance,"Distance_Table3":table_3_distance}
+        publisher_data(topic_customer_detection,payload_table_data)
+        time.sleep(10)
         
 def customer_entry_details(input_trig_pin,input_echo_pin,sleeptime,temperature_pin):
     while True:
@@ -119,7 +121,6 @@ def customer_entry_details(input_trig_pin,input_echo_pin,sleeptime,temperature_p
         if(distance_id <=40):
             customer_unique_id = customer_id_generation(distance_id)
             print(customer_unique_id)
-            # Update DataBase if the uniqueID is faulty
             time.sleep(2)
             face_image_data = camera_input()
             time.sleep(2)
@@ -146,6 +147,7 @@ def led_on_off(output_pin,ontime):
 #Active Buzzer Output  - Hand Sanitizer
 def hand_sanitiser_status(input_buzzer_state):
     if(int(input_buzzer_state) == 1):
+        print("BuzzerOn")
         buzzState = False
         for i in range(0,4):
             buzzState = not buzzState
@@ -201,9 +203,29 @@ def on_message(client, userdata, msg):
     else:
         print("No valid topic")
     
-# User Inputs   
-restaurant_location = input("Enter Restaurant Location:")
-restaurant_number = input("Enter Restaurant Number:")
+# Validate User Input - Restaurant Location
+def valid_restaurant_location():
+    while True:
+        global restaurant_location
+        restaurant_location = input("Enter Restaurant Location:")
+        if(restaurant_location == "Stuttgart" or restaurant_location == "Boblingen" or restaurant_location == "Esslingen" or restaurant_location == "Ludwigsburg"):
+            print("Entered Restaurant location is correct")
+            break;
+        else:
+            print("Please enter a valid restaurant location")
+
+# Validate User Input - Restaurant Number
+def valid_restaurant_number():
+    while True:
+        global restaurant_number 
+        restaurant_number = input("Enter Restaurant Number:")
+        int_restaurant_number = int(restaurant_number)
+        if(int_restaurant_number == 0 or int_restaurant_number ==1 or int_restaurant_number ==2 or int_restaurant_number ==3):
+            print("Entered Restaurant number is correct")
+            break;
+        else:
+            print("Please enter a valid restaurant number")
+
 
 # MQTT Topic Names
 topic_customer_details = "Restaurant/*/Customer_Data/Entry_Details/"
@@ -248,18 +270,16 @@ try:
     GPIO.setup(LED_TABLE2_OUT, GPIO.OUT)
     GPIO.setup(LED_TABLE3_OUT, GPIO.OUT)
     GPIO.setup(BUZZER_OUT, GPIO.OUT)
+    valid_restaurant_location()
+    valid_restaurant_number()
     
     t0 = threading.Thread(target=customer_entry_details,args=[PIN_TRIGGER_IN[0],PIN_ECHO_OUT[0],0.1,TEMPERATURE_PIN],daemon=True)
     t0.start()
     t1 = threading.Thread(target=subscriber_start,args=[topic_customer_details],daemon=True)
     t1.start()
-    t2 = threading.Thread(target=customer_movement_distance_calculation,args=[PIN_TRIGGER_IN[1],PIN_ECHO_OUT[1],0.15,1],daemon=True)
+    t2 = threading.Thread(target=customer_presence_table_data,args=[PIN_TRIGGER_IN[1],PIN_ECHO_OUT[1],0.15,PIN_TRIGGER_IN[2],PIN_ECHO_OUT[2],0.2,PIN_TRIGGER_IN[3],PIN_ECHO_OUT[3],0.3],daemon=True)
     t2.start()
-    t3 = threading.Thread(target=customer_movement_distance_calculation,args=[PIN_TRIGGER_IN[2],PIN_ECHO_OUT[2],0.2,2],daemon=True)
-    t3.start()
-    t4 = threading.Thread(target=customer_movement_distance_calculation,args=[PIN_TRIGGER_IN[3],PIN_ECHO_OUT[3],0.3,3],daemon=True)
-    t4.start()
-    t5 = threading.Thread(target=customer_movement_distance_calculation,args=[PIN_TRIGGER_IN[4],PIN_ECHO_OUT[4],0.4,4],daemon=True)
+    t5 = threading.Thread(target=customer_movement_hand_detection,args=[PIN_TRIGGER_IN[4],PIN_ECHO_OUT[4],0.4],daemon=True)
     t5.start()
     t6 = threading.Thread(target=subscriber_start,args=[topic_customer_detection],daemon=True)
     t6.start()
@@ -280,6 +300,8 @@ except KeyboardInterrupt:
     print("Close")
 
     
+
+
 
 
 
