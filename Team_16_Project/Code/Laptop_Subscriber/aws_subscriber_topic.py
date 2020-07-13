@@ -197,6 +197,7 @@ def customer_handdetection_check(input_distance):
         payload_buzzer_data = {"Buzzer_Status": buzzer_status}
         publisher_data(topic_customer_handdetection, payload_buzzer_data)
 
+# Method checks the occupancy of the table and counts the number of free tables in the restaurant
 def customer_presence_table_check(location, id, distanceList):
     locationVal = int(locationToId[location])
     idVal = int(id)
