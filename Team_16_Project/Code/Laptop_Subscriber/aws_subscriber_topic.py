@@ -10,6 +10,7 @@ import sys
 import os
 from firebase import firebase
 from datetime import date
+import sys, os
 
 # Function for Image Reconstructio and Mask detection output
 def mask_detection(image_data_str):
@@ -18,7 +19,7 @@ def mask_detection(image_data_str):
     image_result = open("/Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/result.jpg", "wb+") 
     image_result.write(image_64_decode)
     image_result.close()
-    os.system("python3 detect_mask_image.py --image /Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/result.jpg")
+    os.system("python3 detect_mask_image.py --image /Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/result.jpg > /dev/null 2>&1")
     file_result=open("/Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/mask_output.txt", "r")
     mask_output=file_result.read(1)
     return mask_output
@@ -118,13 +119,13 @@ def ai_plan_output():
     ai_plan_output_file_read = open("/Users/phaniabhishek/Documents/studies/SEM2/IOT/Project/AI_Planning/AIPlan.txt", 'r')
     output = ai_plan_output_file_read.read()
     first_word = str(output.split()[0])
-    print(first_word)
+    print("AI Planner Output : " + first_word[1:])
     actuation_data_send(first_word)
 
 totalCustomerCount = [0, 0, 0 , 0]
 allowedCustomerCount = [0,0,0,0]
 safenessLevelList = ["NoRisk","NoRisk","NoRisk","NoRisk"]
-locationToRestaurantTableMap = [[3,3,3,3],[3,3,3,3],[3,3,3,3],[3,3,3,3],[3,3,3,3]]
+locationToRestaurantTableMap = [[4,4,4,4],[4,4,4,4],[4,4,4,4],[4,4,4,4],[4,4,4,4]]
 
 # Function for sending customer_check result
 def actuation_data_send(input_ai_plan_data):
@@ -145,13 +146,15 @@ def actuation_data_send(input_ai_plan_data):
     writeToAppDatabase(file_result[0], file_result[1], totalCustomerCount[int(file_result[0])], allowedCustomerCount[int(file_result[0])])
     writeAiPlanningToFirebase(file_result[0], file_result[1], input_ai_plan_data)
 
+# Method writes the Available seats and safenessLevel of the location to database
 def writeToFirebase(location, id, safenessLevel):
     firebase1 = firebase.FirebaseApplication('https://iotfirebase-d312f.firebaseio.com/', None)
     locationStr = idToLocation[location]
     locationIdVal = int(location)
     idVal = int(id)
     availableSeatsStr = str(locationToRestaurantTableMap[locationIdVal][idVal])
-    data1 = {'RestaurantName': id,
+    data1 = {
+             'RestaurantName': id,
              'AvailableTables': availableSeatsStr,
              'SafenessLevel': safenessLevel
              }
@@ -159,21 +162,22 @@ def writeToFirebase(location, id, safenessLevel):
 
 customerCount = [1, 1, 1, 1]
 
+# Method writes the AIPlanner output to database
 def writeAiPlanningToFirebase(locationId, restaurantId, aiOutput):
     firebase2 = firebase.FirebaseApplication('https://sssrprojectalldata.firebaseio.com/', None)
     locationStr = idToLocation[locationId]
     aiOutputStr = aiOutput[1:]
-    data1 = {'RestaurantName': restaurantId,
+    data1 = {
+             'RestaurantName': restaurantId,
              'CustomerId': str(customerCount[int(locationId)]),
              'AllowRejectReason': aiOutputStr
              }
     firebase2.post("location/" + locationStr + "/" + date.today().strftime('%d-%m-%Y'), data1)
     customerCount[int(locationId)] = customerCount[int(locationId)] + 1
 
-
+# Method calculates the safeness level by taking total and allowed customers count
 def writeToAppDatabase(location, id, totalCustomerCountVal,  allowedCustomerCountVal):
-    print ("Database function started  " + "location : " + location + "id : " + id + "total : "+str(totalCustomerCountVal)
-           + "allowed : "+ str(allowedCustomerCountVal))
+    print ( "TotalCustomerTested : "+str(totalCustomerCountVal) + " AllowedCustomers : "+ str(allowedCustomerCountVal))
     safeness_level = allowedCustomerCountVal / totalCustomerCountVal
     if (safeness_level < 0.2):
         safenessLevelList[int(location)] = "SevereRisk"
@@ -196,6 +200,7 @@ def customer_handdetection_check(input_distance):
 def customer_presence_table_check(location, id, distanceList):
     locationVal = int(locationToId[location])
     idVal = int(id)
+    previousVal = locationToRestaurantTableMap[locationVal][idVal]
     locationToRestaurantTableMap[locationVal][idVal] = 3
     for i, distance in enumerate(distanceList):
         if (float(distance) <= float(maximum_distance)):
@@ -208,7 +213,9 @@ def customer_presence_table_check(location, id, distanceList):
             led_state = 1
         payload_led_state = {"Table_Number_Output": i + 1, "Disinfectant_Status": led_state}
         publisher_data(topic_customer_detection, payload_led_state)
-    writeToFirebase(locationToId[location], id, safenessLevelList[locationVal])
+
+    if (previousVal != locationToRestaurantTableMap[locationVal][idVal]):
+        writeToFirebase(locationToId[location], id, safenessLevelList[locationVal])
 
 
 # Function to start subscriber based on topic
@@ -292,3 +299,9 @@ t0.join()
 t1.join()
 t2.join()
 t3.join()
+
+
+    
+    
+    
+    
