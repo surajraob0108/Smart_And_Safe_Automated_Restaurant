@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">SSSR</string>
+    <string-array name="cities">
+        <item>Stuttgart</item>
+        <item>Boblingen</item>
+        <item>Esslingen</item>
+        <item>Ludwigsburg</item>
+    </string-array>
+</resources>
