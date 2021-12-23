@@ -1,27 +1,4 @@
-# README #
-
-This README would normally document whatever steps are necessary to get your application up and running.
-
-### What is this repository for? ###
-
-Files and documents of Smart City Project to be stored. 
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+# IoT Course, University Of Stuttgart
+Objective: To deploy an IOT system in the Restaurant which enables the Owner to know if there is a
+possibility of infection and spread of the disease (Safety) and also enable the customers to get information
+about the availability of tables(Comfort)
